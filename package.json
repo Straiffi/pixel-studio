@@ -1,0 +1,21 @@
+{
+  "name": "pixel-editor",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "create-react-app-stylus": "^1.1.1",
+    "pnglib-es6": "^1.0.0",
+    "react-scripts": "0.8.3",
+    "stylus": "^0.54.5"
+  },
+  "dependencies": {
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1"
+  },
+  "scripts": {
+    "start": "react-scripts-with-stylus start src/styles/App.styl",
+    "build": "react-scripts-with-stylus build src/styles/App.styl",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
