@@ -13,6 +13,8 @@ export default class PixelEditor extends Component {
       cells: [],
       color: '#000000',
       mousedown: false,
+      pen: true,
+      eraser: false,
     };
 
     document.onmouseup = () => this.onGridMouseUp();
@@ -98,7 +100,7 @@ export default class PixelEditor extends Component {
   }
 
   onCellClick(cell) {
-    cell.background = this.state.color;
+    cell.background = this.state.pen ? this.state.color : 'transparent';
     this.setState({ cells: this.state.cells });
   }
 
@@ -106,14 +108,29 @@ export default class PixelEditor extends Component {
     this.setState({ color });
   }
 
+  onToolChanged(tool) {
+    let pen = false;
+    let eraser = true;
+    if (tool === 'pen') {
+      pen = true;
+      eraser = false;
+    }
+    this.setState({ pen, eraser });
+  }
+
   render() {
     const grid = this.createGrid();
     const previewUrl = this.createPreviewUrl();
     return (
       <div>
-        <Toolbox
-          onColorChanged={(color) => this.onColorChanged(color)}
-        />
+        <div className="margin-bottom">
+          <Toolbox
+            onColorChanged={(color) => this.onColorChanged(color)}
+            onToolChanged={(tool) => this.onToolChanged(tool)}
+            pen={this.state.pen}
+            eraser={this.state.eraser}
+          />
+        </div>
         <div style={{ height: this.props.size, width: this.props.size, overflow: 'scroll' }}>
           <div
             onMouseDown={() => this.onGridMouseDown()}
