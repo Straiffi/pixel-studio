@@ -4,7 +4,7 @@
   "private": true,
   "devDependencies": {
     "create-react-app-stylus": "^1.1.1",
-    "pnglib-es6": "^1.0.0",
+    "pnglib": "0.0.1",
     "react-scripts": "0.8.3",
     "stylus": "^0.54.5"
   },

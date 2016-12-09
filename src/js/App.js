@@ -1,16 +1,10 @@
 import React, { Component } from 'react';
 import PixelEditor from './components/pixel-editor/js/PixelEditor';
-import PNGImage from 'pnglib-es6';
 
 import '../styles/App.css';
 
 class App extends Component {
-  save() {
-    console.log(new PNGImage(100,100,256));
-  }
-
   render() {
-    this.save();
     return (
       <div>
         <div className="row center">
@@ -19,10 +13,11 @@ class App extends Component {
           </div>
         </div>
         <div className="row center">
-          <div className="three columns">
+          <div className="six columns center">
             <PixelEditor
-              cellSize={16}
-              gridSize={20}
+              cellSize={20}
+              gridSize={16}
+              size={400}
             />
           </div>
         </div>
