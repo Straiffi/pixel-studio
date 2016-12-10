@@ -4,6 +4,9 @@ import PNGImage from 'pnglib';
 import ImageDownloader from '../../image-downloader/js/ImageDownloader';
 import Toolbox from '../../toolbox/js/Toolbox';
 
+const MAX_ZOOM = 60;
+const MIN_ZOOM = 10;
+
 export default class PixelEditor extends Component {
   constructor(props) {
     super(props);
@@ -11,6 +14,8 @@ export default class PixelEditor extends Component {
       gridSize: props.gridSize,
       cellSize: props.cellSize,
       cells: [],
+      history: [],
+      future: [],
       color: '#000000',
       mousedown: false,
       pen: true,
@@ -47,24 +52,27 @@ export default class PixelEditor extends Component {
     return `data:image/png;base64,${p.getBase64()}`;
   }
 
-  createCells() {
+  createCells(size) {
     const cells = [];
+    const currentCells = this.state.cells;
+    const cellSize = size ? size : this.state.cellSize;
     let offsetX = 0;
     let offsetY = 0;
     let top = 0;
     let left = 0;
     for (let i = 1; i < this.state.gridSize * this.state.gridSize + 1; i++) {
-      cells.push({ id: i, x: offsetX, y: offsetY, top, left, background: 'transparent', size: this.state.cellSize });
-      left += this.state.cellSize + 1;
+      const oldCell = currentCells.find((c) => c.id === i);
+      cells.push({ id: i, x: offsetX, y: offsetY, top, left, background: (oldCell ? oldCell.background : 'transparent'), size: cellSize });
+      left += cellSize + 1;
       offsetX++;
       if (i % this.state.gridSize === 0) {
-        top += this.state.cellSize + 1;
+        top += cellSize + 1;
         left = 0;
         offsetX = 0;
         offsetY++;
       }
     }
-    this.setState({ cells });
+    this.setState({ cells, cellSize });
   }
 
   createGrid() {
@@ -72,7 +80,7 @@ export default class PixelEditor extends Component {
 
     return this.state.cells.map((c) => {
       return (
-        <div key={c.id} id={c.id} className="grid-cell" style={{
+        <div key={c.id} id={c.id} className="grid-cell no-select" style={{
           backgroundColor: c.background,
           height: c.size,
           width: c.size,
@@ -87,7 +95,9 @@ export default class PixelEditor extends Component {
   }
 
   onGridMouseDown() {
-    this.setState({ mousedown: true });
+    const currentCells = JSON.parse(JSON.stringify(this.state.cells));
+    this.state.history.push(currentCells);
+    this.setState({ mousedown: true, future: [] });
   }
 
   onGridMouseUp() {
@@ -118,31 +128,78 @@ export default class PixelEditor extends Component {
     this.setState({ pen, eraser });
   }
 
+  onZoomIn() {
+    if (this.state.cellSize >= MAX_ZOOM) { return; }
+    const cellSize = this.state.cellSize + 10;
+    this.createCells(cellSize);
+  }
+
+  onZoomOut() {
+    if (this.state.cellSize <= MIN_ZOOM) { return; }
+    const cellSize = this.state.cellSize - 10;
+    this.createCells(cellSize);
+  }
+
+  onUndo() {
+    const cells = this.state.history[this.state.history.length - 1];
+    if (cells && cells.length !== 0) {
+      this.state.future.push(JSON.parse(JSON.stringify(this.state.cells)));
+      this.state.history.splice(this.state.history.length - 1, 1);
+      this.state.cells.forEach((c, i) => c.background = cells[i].background);
+      this.setState({ cells: this.state.cells });
+    }
+  }
+
+  onRedo() {
+    const cells = this.state.future[this.state.future.length - 1];
+    if (cells && cells.length !== 0) {
+      this.state.history.push(JSON.parse(JSON.stringify(this.state.cells)));
+      this.state.future.splice(this.state.future.length - 1, 1);
+      this.state.cells.forEach((c, i) => c.background = cells[i].background);
+      this.setState({ cells: this.state.cells });
+    }
+  }
+
   render() {
     const grid = this.createGrid();
     const previewUrl = this.createPreviewUrl();
     return (
       <div>
-        <div className="margin-bottom">
-          <Toolbox
-            onColorChanged={(color) => this.onColorChanged(color)}
-            onToolChanged={(tool) => this.onToolChanged(tool)}
-            pen={this.state.pen}
-            eraser={this.state.eraser}
-          />
-        </div>
-        <div style={{ height: this.props.size, width: this.props.size, overflow: 'scroll' }}>
-          <div
-            onMouseDown={() => this.onGridMouseDown()}
-            onMouseUp={() => this.onGridMouseUp()}
-            style={{ position: 'relative' }}>
-            {grid}
+        <div className="row">
+          <div className="ten columns center">
+            <div className="margin-bottom">
+              <Toolbox
+                onColorChanged={(color) => this.onColorChanged(color)}
+                onToolChanged={(tool) => this.onToolChanged(tool)}
+                onZoomIn={() => this.onZoomIn()}
+                onZoomOut={() => this.onZoomOut()}
+                onUndo={() => this.onUndo()}
+                onRedo={(cells) => this.onRedo(cells)}
+                pen={this.state.pen}
+                eraser={this.state.eraser}
+                activeColor={this.state.color}
+              />
+            </div>
           </div>
         </div>
-        <ImageDownloader
-          previewSrc={previewUrl}
-          previewSize={32}
-        />
+        <div className="row center">
+          <div className="offset-by-one seven columns center">
+            <div style={{ height: this.props.size, width: this.props.size, overflow: 'scroll' }}>
+              <div
+                onMouseDown={() => this.onGridMouseDown()}
+                onMouseUp={() => this.onGridMouseUp()}
+                style={{ position: 'relative' }}>
+                {grid}
+              </div>
+            </div>
+          </div>
+          <div className="two columns">
+            <ImageDownloader
+              previewSrc={previewUrl}
+              previewSize={this.state.gridSize}
+            />
+          </div>
+        </div>
       </div>
     );
   }

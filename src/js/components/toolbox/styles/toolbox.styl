@@ -1,34 +1,32 @@
 .toolbox
   box_shadow = 1px 1px 3px 0px grey
-  purple_1 = #28003b
-  purple_2 = #c5a6ff
+  selected_bg = #e2e2e2
+  selected_outline = #8623ad
+
+  white-space nowrap
 
   input[type='color']
-    background none
-    padding 0
-    outline none
-    border 1px solid black
-    height 25px
-    cursor pointer
     &:hover
       box-shadow box_shadow
+  label
+    display inline-block
+    margin-bottom none
 
   .colorpicker
-    height 0
-    width 0
+    display inline-block
 
   .toolbox-button
-    border 1px solid black
+    border 2px dotted black
     margin-left 3px
     margin-right 3px
-    padding-left 8px
-    padding-right 8px
+    padding-left 20px
+    padding-right 20px
     padding-top 3px
     padding-bottom 6px
     cursor pointer
     &:hover
       box-shadow box_shadow
     &.selected
-      background purple_1
-      color white
-      border 2px dotted purple_2
+      background selected_bg
+      border 2px dotted selected_outline
+      box-shadow inset -1px 1px 5px 0px #000
