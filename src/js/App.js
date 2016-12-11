@@ -6,7 +6,7 @@ import '../styles/App.css';
 import '../fonts/fontello/css/icons.css';
 
 const MIN_GRIDSIZE = 4;
-const MAX_GRIDSIZE = 50;
+const MAX_GRIDSIZE = 64;
 
 export default class App extends Component {
   constructor(props) {
@@ -52,13 +52,13 @@ export default class App extends Component {
         <div className="row">
           <div className="five columns">
             <span>Width: </span>
-            <input type="number" id="widthSelector" min={MIN_GRIDSIZE} max={MAX_GRIDSIZE} maxLength="2" defaultValue="16" onBlur={(e) => validateInput(e)} />
+            <input type="number" id="widthSelector" min={MIN_GRIDSIZE} max={MAX_GRIDSIZE} maxLength="2" defaultValue="16" onBlur={(e) => validateInput(e)} style={{ width: 70 }}/>
           </div>
         </div>
         <div className="row">
           <div className="five columns">
             <span>Height: </span>
-            <input type="number" id="heightSelector" min={MIN_GRIDSIZE} max={MAX_GRIDSIZE} maxLength="2" defaultValue="16" onBlur={(e) => validateInput(e)}/>
+            <input type="number" id="heightSelector" min={MIN_GRIDSIZE} max={MAX_GRIDSIZE} maxLength="2" defaultValue="16" onBlur={(e) => validateInput(e)} style={{ width: 70 }}/>
           </div>
         </div>
         <br/>
@@ -108,6 +108,6 @@ App.PropTypes = {
 };
 
 App.defaultProps = {
-  gridWidth: 8,
-  gridHeight: 8,
+  gridWidth: 16,
+  gridHeight: 16,
 };

@@ -1,8 +1,10 @@
 import React, { Component, PropTypes } from 'react';
 import PNGImage from 'pnglib';
+import _ from 'lodash';
 
 import ImageDownloader from '../../image-downloader/js/ImageDownloader';
 import Toolbox from '../../toolbox/js/Toolbox';
+import ColorPalette from '../../color-palette/js/ColorPalette';
 
 const MAX_ZOOM = 60;
 const MIN_ZOOM = 10;
@@ -17,6 +19,7 @@ export default class PixelEditor extends Component {
       cells: [],
       history: [],
       future: [],
+      paletteColors: [],
       color: '#000000',
       mousedown: false,
       pen: true,
@@ -25,6 +28,7 @@ export default class PixelEditor extends Component {
     };
 
     document.onmouseup = () => this.onGridMouseUp();
+    this.onCellMouseMoveThrottled = _.throttle(this.onCellMouseMove, 20);
   }
 
   componentDidMount() {
@@ -89,7 +93,8 @@ export default class PixelEditor extends Component {
       cells,
       cellSize,
       gridWidth,
-      gridHeight
+      gridHeight,
+      paletteColors: this.getPaletteColors(cells),
     };
     if (clear) {
       newState.history = [];
@@ -110,16 +115,28 @@ export default class PixelEditor extends Component {
           left: c.left,
           top: c.top
         }}
-             onClick={() => this.onCellClick(c)}
-             onMouseMove={() => this.onCellMouseMove(c)}>
+             onMouseUp={() => this.onCellClick(c)}
+             onMouseMove={() => this.onCellMouseMoveThrottled(c)}>
         </div>
       );
     });
   }
 
+  getPaletteColors(cells) {
+    const colors = [];
+    const currentCells = cells ? cells : this.state.cells;
+    currentCells.forEach((c) => {
+      if (c.color !== 'transparent' && !colors.includes(c.color)) {
+        colors.push(c.color);
+      }
+    });
+    return colors;
+  }
+
   fill(startCell) {
     const pixelStack = [[startCell.x, startCell.y]];
     const startColor = startCell.color;
+    if (startColor === this.state.color) { return; }
 
     const matchPixel = (id) => this.state.cells.find((c) => c.id === id);
     const matchPixelByCoord = (x, y) => this.state.cells.find((c) => c.x === x && c.y === y);
@@ -193,7 +210,7 @@ export default class PixelEditor extends Component {
   }
 
   onGridMouseUp() {
-    this.setState({ mousedown: false });
+    this.setState({ mousedown: false, paletteColors: this.getPaletteColors() });
   }
 
   onCellMouseMove(cell) {
@@ -253,7 +270,7 @@ export default class PixelEditor extends Component {
       this.state.future.push(JSON.parse(JSON.stringify(this.state.cells)));
       this.state.history.splice(this.state.history.length - 1, 1);
       this.state.cells.forEach((c, i) => c.color = cells[i].color);
-      this.setState({ cells: this.state.cells });
+      this.setState({ cells: this.state.cells, paletteColors: this.getPaletteColors() });
     }
   }
 
@@ -263,7 +280,7 @@ export default class PixelEditor extends Component {
       this.state.history.push(JSON.parse(JSON.stringify(this.state.cells)));
       this.state.future.splice(this.state.future.length - 1, 1);
       this.state.cells.forEach((c, i) => c.color = cells[i].color);
-      this.setState({ cells: this.state.cells });
+      this.setState({ cells: this.state.cells, paletteColors: this.getPaletteColors() });
     }
   }
 
@@ -273,7 +290,7 @@ export default class PixelEditor extends Component {
     return (
       <div>
         <div className="row">
-          <div className="ten columns center">
+          <div className="ten columns">
             <div className="margin-bottom">
               <Toolbox
                 onColorChanged={(color) => this.onColorChanged(color)}
@@ -289,10 +306,16 @@ export default class PixelEditor extends Component {
               />
             </div>
           </div>
+          <div className="two columns">
+            <ColorPalette
+              colors={this.state.paletteColors}
+              onColorChanged={(color) => this.onColorChanged(color)}
+            />
+          </div>
         </div>
-        <div className="row center">
-          <div className="seven columns center">
-            <div style={{ height: this.props.size, width: this.props.size, overflow: 'scroll' }}>
+        <div className="row">
+          <div className="ten columns center">
+            <div style={{ height: '70vh', width: '70vw', overflow: 'scroll' }}>
               <div
                 onMouseDown={() => this.onGridMouseDown()}
                 onMouseUp={() => this.onGridMouseUp()}

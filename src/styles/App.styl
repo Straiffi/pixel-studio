@@ -1,6 +1,7 @@
 @import "../js/components/pixel-editor/styles/PixelEditor.styl";
 @import "../js/components/toolbox/styles/toolbox.styl";
 @import "../js/components/modal/styles/modal.styl";
+@import "../js/components/color-palette/styles/colorpalette.styl";
 
 .center
     display flex
@@ -56,6 +57,13 @@
 
 .hidden
     display none
+
+.pixelated
+    image-rendering -moz-crisp-edges;
+    image-rendering pixelated;
+    image-rendering -o-crisp-edges;
+    -ms-interpolation-mode nearest-neighbor;
+
 
 .warning-text
     color red
