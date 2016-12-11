@@ -18,9 +18,9 @@ export default class PixelEditor extends Component {
       future: [],
       color: '#000000',
       mousedown: false,
-      pen: false,
+      pen: true,
       eraser: false,
-      bucket: true,
+      bucket: false,
     };
 
     document.onmouseup = () => this.onGridMouseUp();
@@ -62,8 +62,10 @@ export default class PixelEditor extends Component {
     let top = 0;
     let left = 0;
     for (let i = 1; i < this.state.gridSize * this.state.gridSize + 1; i++) {
-      const oldCell = currentCells.find((c) => c.id === i);
-      cells.push({ id: i - 1, x: offsetX, y: offsetY, top, left, color: (oldCell ? oldCell.color : 'transparent'), size: cellSize });
+      const id = i - 1;
+      const oldCell = currentCells.find((c) => c.id === id);
+      const color = oldCell && oldCell.color ? oldCell.color : 'transparent'
+      cells.push({ id, x: offsetX, y: offsetY, top, left, color, size: cellSize });
       left += cellSize + 1;
       offsetX++;
       if (i % this.state.gridSize === 0) {
