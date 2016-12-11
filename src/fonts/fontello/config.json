@@ -125,6 +125,18 @@
       "css": "link",
       "code": 59407,
       "src": "fontawesome"
+    },
+    {
+      "uid": "4aad6bb50b02c18508aae9cbe14e784e",
+      "css": "share",
+      "code": 61920,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "8ea66d97faf9816abd34f48f3f26d216",
+      "css": "bucket",
+      "code": 59408,
+      "src": "entypo"
     }
   ]
 }

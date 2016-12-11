@@ -4,6 +4,7 @@
   "private": true,
   "devDependencies": {
     "create-react-app-stylus": "^1.1.1",
+    "gh-pages": "^0.12.0",
     "pnglib": "0.0.1",
     "react-scripts": "0.8.3",
     "stylus": "^0.54.5"
@@ -16,6 +17,8 @@
     "start": "react-scripts-with-stylus start src/styles/App.styl",
     "build": "react-scripts-with-stylus build src/styles/App.styl",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  }
+    "eject": "react-scripts eject",
+    "deploy": "npm run build&&gh-pages -d build"
+  },
+  "homepage": "https://straiffi.github.io/pixel-studio"
 }

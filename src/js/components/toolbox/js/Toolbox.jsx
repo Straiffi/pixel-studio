@@ -11,6 +11,7 @@ export default class Toolbox extends Component {
           }}/>
           <label htmlFor="colorpicker" className="no-select color-preview"><span style={{ background: this.props.activeColor, color: '#fff' }} className="toolbox-button" title="Color">Color</span></label>
           <span className={`toolbox-button no-select ${ this.props.pen ? 'selected' : '' } `} onClick={() => this.props.onToolChanged('pen')} title="Pencil"><i className="icon-pencil"></i></span>
+          <span className={`toolbox-button no-select ${ this.props.bucket ? 'selected' : '' } `} onClick={() => this.props.onToolChanged('bucket')} title="Fill"><i className="icon-bucket"></i></span>
           <span className={`toolbox-button no-select ${ this.props.eraser ? 'selected' : '' } `} onClick={() => this.props.onToolChanged('eraser')} style={{ marginRight: 20 }} title="Eraser">
             <i className="icon-eraser"></i>
           </span>
@@ -33,10 +34,12 @@ Toolbox.PropTypes = {
   onRedo: PropTypes.func,
   pen: PropTypes.bool,
   eraser: PropTypes.bool,
+  bucket: PropTypes.bool,
   activeColor: PropTypes.string,
 };
 
 Toolbox.defaultProps = {
   pen: true,
   eraser: false,
+  bucket: false,
 };
