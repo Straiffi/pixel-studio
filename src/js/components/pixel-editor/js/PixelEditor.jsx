@@ -11,7 +11,8 @@ export default class PixelEditor extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      gridSize: props.gridSize,
+      gridWidth: props.gridWidth,
+      gridHeight: props.gridHeight,
       cellSize: props.cellSize,
       cells: [],
       history: [],
@@ -30,6 +31,12 @@ export default class PixelEditor extends Component {
     this.createCells();
   }
 
+  componentWillReceiveProps(newProps) {
+    if (newProps.gridWidth !== this.state.gridWidth || newProps.gridHeight !== this.state.gridHeight || newProps.newImage === true) {
+      this.createCells(this.state.cellSize, newProps.gridWidth, newProps.gridHeight, true);
+    }
+  }
+
   createPreviewUrl() {
     const hexToRgb = (hex) => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -40,7 +47,7 @@ export default class PixelEditor extends Component {
       } : null;
     };
 
-    const p = new PNGImage(this.state.gridSize, this.state.gridSize, 256);
+    const p = new PNGImage(this.state.gridWidth, this.state.gridHeight, 256);
     p.color(0, 0, 0, 0);
 
     for (let i = 0; i < this.state.cells.length; i++) {
@@ -53,29 +60,42 @@ export default class PixelEditor extends Component {
     return `data:image/png;base64,${p.getBase64()}`;
   }
 
-  createCells(size) {
+  createCells(size, width, height, clear = false) {
     const cells = [];
     const currentCells = this.state.cells;
     const cellSize = size ? size : this.state.cellSize;
+    const gridWidth = width ? width : this.state.gridWidth;
+    const gridHeight = height ? height : this.state.gridHeight;
     let offsetX = 0;
     let offsetY = 0;
     let top = 0;
     let left = 0;
-    for (let i = 1; i < this.state.gridSize * this.state.gridSize + 1; i++) {
+    for (let i = 1; i < gridWidth * gridHeight + 1; i++) {
       const id = i - 1;
       const oldCell = currentCells.find((c) => c.id === id);
-      const color = oldCell && oldCell.color ? oldCell.color : 'transparent'
+      const color = oldCell && oldCell.color && !clear ? oldCell.color : 'transparent';
       cells.push({ id, x: offsetX, y: offsetY, top, left, color, size: cellSize });
       left += cellSize + 1;
       offsetX++;
-      if (i % this.state.gridSize === 0) {
+      if (i % gridWidth === 0) {
         top += cellSize + 1;
         left = 0;
         offsetX = 0;
         offsetY++;
       }
     }
-    this.setState({ cells, cellSize });
+
+    const newState = {
+      cells,
+      cellSize,
+      gridWidth,
+      gridHeight
+    };
+    if (clear) {
+      newState.history = [];
+      newState.future = [];
+    }
+    this.setState(newState);
   }
 
   createGrid() {
@@ -127,14 +147,14 @@ export default class PixelEditor extends Component {
 
       pixelPos = matchPixelByCoord(x, y).id;
       while (y-- >= 0 && matchStartColor(pixelPos)) {
-        pixelPos -= this.state.gridSize;
+        pixelPos -= this.state.gridWidth;
       }
-      pixelPos += this.state.gridSize;
+      pixelPos += this.state.gridWidth;
       y++;
       reachLeft = false;
       reachRight = false;
 
-      while (y++ < this.state.gridSize - 1 && matchStartColor(pixelPos)) {
+      while (y++ < this.state.gridHeight - 1 && matchStartColor(pixelPos)) {
         colorPixel(pixelPos);
 
         if (x > 0) {
@@ -149,7 +169,7 @@ export default class PixelEditor extends Component {
           }
         }
 
-        if (x < this.state.gridSize - 1) {
+        if (x < this.state.gridWidth - 1) {
           if (matchStartColor(pixelPos + 1)) {
             if (!reachRight) {
               pixelStack.push([x + 1, y]);
@@ -160,7 +180,7 @@ export default class PixelEditor extends Component {
             reachRight = false;
           }
         }
-        pixelPos += this.state.gridSize;
+        pixelPos += this.state.gridWidth;
       }
     }
     this.setState({ cells: this.state.cells });
@@ -207,6 +227,9 @@ export default class PixelEditor extends Component {
         break;
       case 'bucket':
         bucket = true;
+        break;
+      default:
+        pen = true;
         break;
     }
     this.setState({ pen, eraser, bucket });
@@ -268,7 +291,7 @@ export default class PixelEditor extends Component {
           </div>
         </div>
         <div className="row center">
-          <div className="offset-by-one seven columns center">
+          <div className="seven columns center">
             <div style={{ height: this.props.size, width: this.props.size, overflow: 'scroll' }}>
               <div
                 onMouseDown={() => this.onGridMouseDown()}
@@ -281,7 +304,8 @@ export default class PixelEditor extends Component {
           <div className="two columns">
             <ImageDownloader
               previewSrc={previewUrl}
-              previewSize={this.state.gridSize}
+              previewWidth={this.state.gridWidth}
+              previewHeight={this.state.gridHeight}
             />
           </div>
         </div>
@@ -291,13 +315,16 @@ export default class PixelEditor extends Component {
 }
 
 PixelEditor.propTypes = {
-  gridSize: PropTypes.number.isRequired,
+  gridWidth: PropTypes.number.isRequired,
+  gridHeight: PropTypes.number.isRequired,
   cellSize: PropTypes.number.isRequired,
   size: PropTypes.number,
+  newImage: PropTypes.bool,
 };
 
 PixelEditor.defaultProps = {
-  gridSize: 16,
+  gridWidth: 16,
+  gridHeight: 16,
   cellSize: 20,
   size: 400,
 };

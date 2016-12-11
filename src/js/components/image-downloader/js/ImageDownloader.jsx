@@ -7,17 +7,17 @@ export default class ImageDownloader extends Component {
         <div className="row center">
           <div className="two columns">
             <div>
-              <img src={this.props.previewSrc} style={{ height: this.props.previewSize, width: this.props.previewSize, imageRendering: 'pixelated' }} alt="" />
+              <img src={this.props.previewSrc} style={{ height: this.props.previewHeight, width: this.props.previewWidth, imageRendering: 'pixelated' }} alt="" />
               <br />
               <span>1x</span>
             </div>
             <div>
-              <img src={this.props.previewSrc} style={{ height: this.props.previewSize * 2, width: this.props.previewSize * 2, imageRendering: 'pixelated' }} alt="" />
+              <img src={this.props.previewSrc} style={{ height: this.props.previewHeight * 2, width: this.props.previewWidth * 2, imageRendering: 'pixelated' }} alt="" />
               <br />
               <span>2x</span>
             </div>
             <div>
-              <img src={this.props.previewSrc} style={{ height: this.props.previewSize * 4, width: this.props.previewSize * 4, imageRendering: 'pixelated' }} alt="" />
+              <img src={this.props.previewSrc} style={{ height: this.props.previewHeight * 4, width: this.props.previewWidth * 4, imageRendering: 'pixelated' }} alt="" />
               <br />
               <span>4x</span>
             </div>
@@ -35,5 +35,6 @@ export default class ImageDownloader extends Component {
 
 ImageDownloader.PropTypes = {
   previewSrc: PropTypes.string,
-  previewSize: PropTypes.number,
+  previewWidth: PropTypes.number,
+  previewHeight: PropTypes.number,
 };
