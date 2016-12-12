@@ -212,6 +212,7 @@ export default class PixelEditor extends Component {
   }
 
   onGridMouseDown() {
+    if (this.state.eyedropper) { return; }
     const currentCells = JSON.parse(JSON.stringify(this.state.cells));
     this.state.history.push(currentCells);
     this.setState({ mousedown: true, future: [] });
@@ -223,7 +224,7 @@ export default class PixelEditor extends Component {
 
   onCellMouseMove(cell) {
     if (!this.state.mousedown || this.state.bucket) { return; }
-    this.onCellClick(cell)
+    this.onCellClick(cell);
   }
 
   onCellClick(cell) {
@@ -238,7 +239,7 @@ export default class PixelEditor extends Component {
 
     if (this.state.eyedropper) {
       if (cell.color !== 'transparent') {
-        this.setState({ color: cell.color });
+        this.onColorChanged(cell.color);
       }
     }
   }
