@@ -42,10 +42,8 @@ Modal.PropTypes = {
   positiveCallback: PropTypes.func,
   dismissCallback: PropTypes.func,
   closeButton: PropTypes.bool,
-  visible: PropTypes.bool,
 };
 
 Modal.defaultProps = {
-  visible: false,
   height: 200,
 };

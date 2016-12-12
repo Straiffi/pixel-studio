@@ -68,6 +68,17 @@ export default class App extends Component {
   }
 
   render() {
+    const newImageModal = this.state.newImageModal ? (
+      <Modal
+        height={250}
+        title={'New image'}
+        body={this.createGridSizeSelector()}
+        positiveText={'OK'}
+        negativeText={'Cancel'}
+        positiveCallback={(size) => this.newImage(size)}
+        dismissCallback={(visible) => this.toggleNewImageModal(visible)}
+      />
+    ) : null;
     return (
       <div>
         <div className="row center">
@@ -90,16 +101,7 @@ export default class App extends Component {
           gridHeight={this.state.gridHeight}
           newImage={this.state.newImage}
         />
-        <Modal
-          height={250}
-          title={'New image'}
-          body={this.createGridSizeSelector()}
-          positiveText={'OK'}
-          negativeText={'Cancel'}
-          positiveCallback={(size) => this.newImage(size)}
-          dismissCallback={(visible) => this.toggleNewImageModal(visible)}
-          visible={this.state.newImageModal}
-        />
+        {newImageModal}
       </div>
     );
   }
