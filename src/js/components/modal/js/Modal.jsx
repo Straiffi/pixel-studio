@@ -11,7 +11,7 @@ export default class Modal extends Component {
     const closeButton = this.props.closeButton && this.props.dismissCallback ? (
       <i className="icon-cancel close-button" onClick={() => this.props.dismissCallback(false)}></i>
     ): null;
-    return this.props.visible ? (
+    return (
       <div className="modal-bg">
         <div className="modal" style={{ height: this.props.height }}>
           <div className="modal-title">
@@ -29,7 +29,7 @@ export default class Modal extends Component {
           </div>
         </div>
       </div>
-    ) : null;
+    );
   }
 }
 
