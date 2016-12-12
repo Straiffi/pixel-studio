@@ -28,6 +28,13 @@ export default class PixelEditor extends Component {
       eyedropper: false,
     };
 
+    window.onbeforeunload =  (e) => {
+      e.preventDefault();
+      if (this.state.paletteColors.length !== 0) { // Palette doesn't have any colors if the image hasn't been modified.
+        return e.returnValue = '';
+      }
+    };
+
     document.onmouseup = () => this.onGridMouseUp();
     this.onCellMouseMoveThrottled = _.throttle(this.onCellMouseMove, 20);
   }
