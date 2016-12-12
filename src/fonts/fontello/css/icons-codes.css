@@ -17,6 +17,11 @@
 .icon-link:before { content: '\e80f'; } /* '' */
 .icon-bucket:before { content: '\e810'; } /* '' */
 .icon-cog:before { content: '\e811'; } /* '' */
+.icon-down-big:before { content: '\e812'; } /* '' */
+.icon-left-big:before { content: '\e813'; } /* '' */
+.icon-right-big:before { content: '\e814'; } /* '' */
+.icon-up-big:before { content: '\e815'; } /* '' */
+.icon-marquee:before { content: '\e847'; } /* '' */
 .icon-move:before { content: '\f047'; } /* '' */
 .icon-github-circled:before { content: '\f09b'; } /* '' */
 .icon-info:before { content: '\f129'; } /* '' */

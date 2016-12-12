@@ -36,6 +36,7 @@ export default class PixelEditor extends Component {
     };
 
     document.onmouseup = () => this.onGridMouseUp();
+    document.onkeydown = (e) => this.handleKeyPress(e.key);
     this.onCellMouseMoveThrottled = _.throttle(this.onCellMouseMove, 20);
   }
 
@@ -45,7 +46,7 @@ export default class PixelEditor extends Component {
 
   componentWillReceiveProps(newProps) {
     if (newProps.gridWidth !== this.state.gridWidth || newProps.gridHeight !== this.state.gridHeight || newProps.newImage === true) {
-      this.createCells(this.state.cellSize, newProps.gridWidth, newProps.gridHeight, true);
+      this.createCells(this.state.cellSize, newProps.gridWidth, newProps.gridHeight, undefined, true);
     }
   }
 
@@ -72,9 +73,9 @@ export default class PixelEditor extends Component {
     return `data:image/png;base64,${p.getBase64()}`;
   }
 
-  createCells(size, width, height, clear = false) {
+  createCells(size, width, height, newCells = undefined, clear = false) {
     const cells = [];
-    const currentCells = this.state.cells;
+    const currentCells = newCells ? newCells : this.state.cells;
     const cellSize = size ? size : this.state.cellSize;
     const gridWidth = width ? width : this.state.gridWidth;
     const gridHeight = height ? height : this.state.gridHeight;
@@ -84,7 +85,7 @@ export default class PixelEditor extends Component {
     let left = 0;
     for (let i = 1; i < gridWidth * gridHeight + 1; i++) {
       const id = i - 1;
-      const oldCell = currentCells.find((c) => c.id === id);
+      const oldCell = currentCells.find((c) => c.x === offsetX && c.y === offsetY);
       const color = oldCell && oldCell.color && !clear ? oldCell.color : 'transparent';
       cells.push({ id, x: offsetX, y: offsetY, top, left, color, size: cellSize });
       left += cellSize + 1;
@@ -209,6 +210,70 @@ export default class PixelEditor extends Component {
       }
     }
     this.setState({ cells: this.state.cells });
+  }
+
+  shiftPixels(direction) {
+    const newCells = this.state.cells.map((c) => {
+      switch (direction) {
+        case 'left':
+          if (c.x >= 0 && c.x <= this.state.gridWidth) {
+            if (c.x === 0) {
+              c.x = this.state.gridWidth - 1;
+            } else {
+              c.x--;
+            }
+          }
+          break;
+        case 'right':
+          if (c.x >= 0 && c.x <= this.state.gridWidth) {
+            if (c.x === this.state.gridWidth - 1) {
+              c.x = 0;
+            } else {
+              c.x++;
+            }
+          }
+          break;
+        case 'up':
+          if (c.y >= 0 && c.y <= this.state.gridHeight) {
+            if (c.y === 0) {
+              c.y = this.state.gridHeight - 1;
+            } else {
+              c.y--;
+            }
+          }
+          break;
+        case 'down':
+          if (c.y >= 0 && c.y <= this.state.gridHeight) {
+            if (c.y === this.state.gridHeight - 1) {
+              c.y = 0;
+            } else {
+              c.y++;
+            }
+          }
+          break;
+      }
+      return c;
+    });
+    this.createCells(this.state.cellSize, this.state.gridWidth, this.state.gridHeight, newCells, false);
+  }
+
+  handleKeyPress(key) {
+    switch (key) {
+      case 'ArrowLeft':
+        this.shiftPixels('left');
+        break;
+      case 'ArrowRight':
+        this.shiftPixels('right');
+        break;
+      case 'ArrowUp':
+        this.shiftPixels('up');
+        break;
+      case 'ArrowDown':
+        this.shiftPixels('down');
+        break;
+      default:
+        break;
+    }
   }
 
   onGridMouseDown() {
