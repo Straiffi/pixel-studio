@@ -75,7 +75,7 @@ export default class App extends Component {
             <h2 style={{ userSelect: 'none' }}>Pixel Studio</h2>
           </div>
         </div>
-        <div className="row center">
+        <div className="row center margin-bottom">
           <div className="seven columns">
             <a style={{ cursor: 'pointer' }} onClick={() => this.toggleNewImageModal(true)}><i className="icon-plus-circled"></i> New image</a>
           </div>

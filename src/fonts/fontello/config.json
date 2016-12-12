@@ -137,6 +137,18 @@
       "css": "bucket",
       "code": 59408,
       "src": "entypo"
+    },
+    {
+      "uid": "e99461abfef3923546da8d745372c995",
+      "css": "cog",
+      "code": 59409,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "88e6faa0f633ee23667f815689e82af3",
+      "css": "eyedropper",
+      "code": 61947,
+      "src": "fontawesome"
     }
   ]
 }

@@ -15,9 +15,11 @@ export default class Toolbox extends Component {
           <label htmlFor="colorpicker" className="no-select color-preview"><span style={{ background: this.props.activeColor, color: '#fff' }} className="toolbox-button" title="Color">Color</span></label>
           <span className={`toolbox-button no-select ${ this.props.pen ? 'selected' : '' } `} onClick={() => this.props.onToolChanged('pen')} title="Pencil"><i className="icon-pencil"></i></span>
           <span className={`toolbox-button no-select ${ this.props.bucket ? 'selected' : '' } `} onClick={() => this.props.onToolChanged('bucket')} title="Fill"><i className="icon-bucket"></i></span>
-          <span className={`toolbox-button no-select ${ this.props.eraser ? 'selected' : '' } `} onClick={() => this.props.onToolChanged('eraser')} style={{ marginRight: 20 }} title="Eraser">
-            <i className="icon-eraser"></i>
+          <span className={`toolbox-button no-select ${ this.props.eraser ? 'selected' : '' } `} onClick={() => this.props.onToolChanged('eraser')} title="Eraser"><i className="icon-eraser"></i></span>
+          <span className={`toolbox-button no-select ${ this.props.eyedropper ? 'selected' : '' } `} onClick={() => this.props.onToolChanged('eyedropper')} title="Eyedropper" style={{ marginRight: 20 }}>
+            <i className="icon-eyedropper"></i>
           </span>
+
           <span className={'toolbox-button no-select'} onClick={() => this.props.onUndo()} title="Undo"><i className="icon-ccw"></i></span>
           <span className={'toolbox-button no-select'} onClick={() => this.props.onRedo()} title="Redo"><i className="icon-cw"></i></span>
           <span className={'toolbox-button no-select'} onClick={() => this.props.onZoomIn()} title="Zoom in"><i className="icon-zoom-in"></i></span>
@@ -45,4 +47,5 @@ Toolbox.defaultProps = {
   pen: true,
   eraser: false,
   bucket: false,
+  eyedropper: false,
 };

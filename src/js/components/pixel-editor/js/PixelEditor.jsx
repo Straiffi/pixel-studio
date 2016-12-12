@@ -25,6 +25,7 @@ export default class PixelEditor extends Component {
       pen: true,
       eraser: false,
       bucket: false,
+      eyedropper: false,
     };
 
     document.onmouseup = () => this.onGridMouseUp();
@@ -219,11 +220,19 @@ export default class PixelEditor extends Component {
   }
 
   onCellClick(cell) {
-    if (!this.state.bucket) {
+    if (this.state.pen || this.state.eraser) {
       cell.color = this.state.pen ? this.state.color : 'transparent';
       this.setState({ cells: this.state.cells });
-    } else {
+    }
+
+    if (this.state.bucket) {
       this.fill(cell);
+    }
+
+    if (this.state.eyedropper) {
+      if (cell.color !== 'transparent') {
+        this.setState({ color: cell.color });
+      }
     }
   }
 
@@ -235,6 +244,7 @@ export default class PixelEditor extends Component {
     let pen = false;
     let eraser = false;
     let bucket = false;
+    let eyedropper = false;
     switch(tool) {
       case 'pen':
         pen = true;
@@ -245,11 +255,14 @@ export default class PixelEditor extends Component {
       case 'bucket':
         bucket = true;
         break;
+      case 'eyedropper':
+        eyedropper = true;
+        break;
       default:
         pen = true;
         break;
     }
-    this.setState({ pen, eraser, bucket });
+    this.setState({ pen, eraser, bucket, eyedropper });
   }
 
   onZoomIn() {
@@ -302,6 +315,7 @@ export default class PixelEditor extends Component {
                 pen={this.state.pen}
                 eraser={this.state.eraser}
                 bucket={this.state.bucket}
+                eyedropper={this.state.eyedropper}
                 activeColor={this.state.color}
               />
             </div>
