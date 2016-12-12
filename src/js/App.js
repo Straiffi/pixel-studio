@@ -71,8 +71,11 @@ export default class App extends Component {
     return (
       <div>
         <div className="row center">
-          <div className="six columns">
+          <div className="ten columns">
             <h2 style={{ userSelect: 'none' }}>Pixel Studio</h2>
+          </div>
+          <div className="two columns">
+            <a href="https://github.com/Straiffi/pixel-studio" title="View on GitHub"><i className="icon-github-circled" style={{ color: '#000', fontSize: 45 }}></i></a>
           </div>
         </div>
         <div className="row center margin-bottom">
