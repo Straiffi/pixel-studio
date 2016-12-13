@@ -35,7 +35,7 @@ export default class App extends Component {
   }
 
   toggleNewImageModal(visible) {
-    this.setState({ newImageModal: visible, newImage: false });
+    this.setState({ newImageModal: visible, newImage: false, uploadedImage: null });
   }
 
   createGridSizeSelector() {
@@ -132,7 +132,7 @@ export default class App extends Component {
         <div className="row center margin-bottom">
           <div className="seven columns">
             <a style={{ cursor: 'pointer' }} onClick={() => this.toggleNewImageModal(true)}><i className="icon-plus-circled"></i> New image</a>
-            <input type="file" name="fileselector" id="fileselector" style={{ display: 'none' }} onChange={(e) => this.onFileUpload(e)}/>
+            <input type="file" accept="image/png" name="fileselector" id="fileselector" style={{ display: 'none' }} onChange={(e) => this.onFileUpload(e)}/>
             <label htmlFor="fileselector">
               <a style={{ cursor: 'pointer' }}><i className="icon-upload"></i> Open</a>
             </label>

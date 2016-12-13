@@ -103,7 +103,7 @@ export default class PixelEditor extends Component {
         offsetY++;
       }
     }
-
+console.log(cells);
     const newState = {
       cells,
       cellSize,
