@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "base64-js": "^1.2.0",
     "create-react-app-stylus": "^1.1.1",
     "gh-pages": "^0.12.0",
     "lodash": "^4.17.2",

@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import PixelEditor from './components/pixel-editor/js/PixelEditor';
 import Modal from './components/modal/js/Modal';
+import { rgbToHex } from './utils/image-utils';
 
 import '../styles/App.css';
 import '../fonts/fontello/css/icons.css';
@@ -16,6 +17,7 @@ export default class App extends Component {
       gridHeight: this.props.gridHeight,
       newImage: false,
       newImageModal: false,
+      uploadedImage: null,
     };
   }
 
@@ -67,6 +69,44 @@ export default class App extends Component {
     );
   }
 
+  onFileUpload() {
+    const input = document.getElementById('fileselector');
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const img = new Image();
+      const canvas = document.createElement('canvas');
+
+      img.src = reader.result;
+      if (img.width > MAX_GRIDSIZE || img.height > MAX_GRIDSIZE) { return; } // TODO: implement error message
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const context = canvas.getContext('2d');
+      context.drawImage(img, 0, 0);
+
+      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      const cells = [];
+
+      for (let i = 0, n = data.length; i < n; i += 4) {
+        const red = data[i];
+        const green = data[i + 1];
+        const blue = data[i + 2];
+        const alpha = data[i + 3];
+        const hex = alpha !== 0 ? rgbToHex(`rgba(${red}, ${green}, ${blue}, ${alpha})`) : 'transparent';
+        cells.push({ id: (i !== 0 ? (i / 4) : i), color: hex});
+      }
+      this.setState({ uploadedImage: cells, gridWidth: canvas.width, gridHeight: canvas.height });
+    };
+
+    if (file) {
+      if (file.type !== 'image/png') { return; }
+      reader.readAsDataURL(file);
+    }
+  }
+
   render() {
     const newImageModal = this.state.newImageModal ? (
       <Modal
@@ -92,6 +132,10 @@ export default class App extends Component {
         <div className="row center margin-bottom">
           <div className="seven columns">
             <a style={{ cursor: 'pointer' }} onClick={() => this.toggleNewImageModal(true)}><i className="icon-plus-circled"></i> New image</a>
+            <input type="file" name="fileselector" id="fileselector" style={{ display: 'none' }} onChange={(e) => this.onFileUpload(e)}/>
+            <label htmlFor="fileselector">
+              <a style={{ cursor: 'pointer' }}><i className="icon-upload"></i> Open</a>
+            </label>
           </div>
         </div>
         <PixelEditor
@@ -100,6 +144,7 @@ export default class App extends Component {
           gridWidth={this.state.gridWidth}
           gridHeight={this.state.gridHeight}
           newImage={this.state.newImage}
+          cells={this.state.uploadedImage}
         />
         {newImageModal}
       </div>

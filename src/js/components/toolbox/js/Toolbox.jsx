@@ -10,9 +10,9 @@ export default class Toolbox extends Component {
               const color = document.getElementById('colorpicker').value;
               this.props.onColorChanged(color);
             }}
-                   onClick={() => {
-                     document.getElementById('colorpicker').value = this.props.activeColor;
-                   }}/>
+            onClick={() => {
+              document.getElementById('colorpicker').value = this.props.activeColor;
+            }}/>
             <label htmlFor="colorpicker" className="no-select color-preview"><span style={{ background: this.props.activeColor, color: '#fff' }} className="toolbox-button" title="Color">Color</span></label>
             <span className={`toolbox-button no-select ${ this.props.pen ? 'selected' : '' } `} onClick={() => this.props.onToolChanged('pen')} title="Pencil"><i className="icon-pencil"></i></span>
             <span className={`toolbox-button no-select ${ this.props.bucket ? 'selected' : '' } `} onClick={() => this.props.onToolChanged('bucket')} title="Fill"><i className="icon-bucket"></i></span>

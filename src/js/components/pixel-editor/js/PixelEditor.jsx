@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import PNGImage from 'pnglib';
 import _ from 'lodash';
+import { hexToRgb } from '../../../utils/image-utils';
 
 import ImageDownloader from '../../image-downloader/js/ImageDownloader';
 import Toolbox from '../../toolbox/js/Toolbox';
@@ -16,7 +17,8 @@ export default class PixelEditor extends Component {
       gridWidth: props.gridWidth,
       gridHeight: props.gridHeight,
       cellSize: props.cellSize,
-      cells: [],
+      cells: props.cells ? props.cells : [],
+      oldCells: [],
       history: [],
       future: [],
       paletteColors: [],
@@ -36,7 +38,13 @@ export default class PixelEditor extends Component {
     };
 
     document.onmouseup = () => this.onGridMouseUp();
-    document.onkeydown = (e) => this.handleKeyPress(e.key);
+    document.onkeydown = (e) => {
+      if (e.key.indexOf('Arrow') !== -1) {
+        e.preventDefault();
+        this.handleKeyPress(e.key);
+      }
+    };
+
     this.onCellMouseMoveThrottled = _.throttle(this.onCellMouseMove, 20);
   }
 
@@ -48,18 +56,13 @@ export default class PixelEditor extends Component {
     if (newProps.gridWidth !== this.state.gridWidth || newProps.gridHeight !== this.state.gridHeight || newProps.newImage === true) {
       this.createCells(this.state.cellSize, newProps.gridWidth, newProps.gridHeight, undefined, true);
     }
+
+    if (newProps.cells) {
+      this.createCells(this.state.cellSize, newProps.gridWidth, newProps.gridHeight, newProps.cells, false);
+    }
   }
 
   createPreviewUrl() {
-    const hexToRgb = (hex) => {
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-      } : null;
-    };
-
     const p = new PNGImage(this.state.gridWidth, this.state.gridHeight, 256);
     p.color(0, 0, 0, 0);
 
@@ -85,7 +88,10 @@ export default class PixelEditor extends Component {
     let left = 0;
     for (let i = 1; i < gridWidth * gridHeight + 1; i++) {
       const id = i - 1;
-      const oldCell = currentCells.find((c) => c.x === offsetX && c.y === offsetY);
+      let oldCell = _.find(currentCells, (c) => c.x === offsetX && c.y === offsetY);
+      if (oldCell === undefined) {
+        oldCell = _.find(currentCells, (c) => c.id === id);
+      }
       const color = oldCell && oldCell.color && !clear ? oldCell.color : 'transparent';
       cells.push({ id, x: offsetX, y: offsetY, top, left, color, size: cellSize });
       left += cellSize + 1;
@@ -115,6 +121,11 @@ export default class PixelEditor extends Component {
   createGrid() {
     if (this.state.cells.length === 0) { return; }
 
+    let cells = this.state.cells;
+    if (this.state.oldCells.length !== 0) {
+      cells = cells.filter((c, i) => c.color !== this.state.oldCells[i].color);
+      console.log(cells);
+    }
     return this.state.cells.map((c) => {
       return (
         <div key={c.id} id={c.id} className="grid-cell no-select" style={{
@@ -147,8 +158,8 @@ export default class PixelEditor extends Component {
     const startColor = startCell.color;
     if (startColor === this.state.color) { return; }
 
-    const matchPixel = (id) => this.state.cells.find((c) => c.id === id);
-    const matchPixelByCoord = (x, y) => this.state.cells.find((c) => c.x === x && c.y === y);
+    const matchPixel = (id) => _.find(this.state.cells, (c) => c.id === id);
+    const matchPixelByCoord = (x, y) => _.find(this.state.cells, (c) => c.x === x && c.y === y);
 
     const matchStartColor = (id) => {
       const pixel = matchPixel(id);
@@ -251,6 +262,8 @@ export default class PixelEditor extends Component {
             }
           }
           break;
+        default:
+          break;
       }
       return c;
     });
@@ -284,7 +297,7 @@ export default class PixelEditor extends Component {
   }
 
   onGridMouseUp() {
-    this.setState({ mousedown: false, paletteColors: this.getPaletteColors() });
+    this.setState({ mousedown: false, paletteColors: this.getPaletteColors(), cells: this.state.cells });
   }
 
   onCellMouseMove(cell) {
@@ -295,7 +308,10 @@ export default class PixelEditor extends Component {
   onCellClick(cell) {
     if (this.state.pen || this.state.eraser) {
       cell.color = this.state.pen ? this.state.color : 'transparent';
-      this.setState({ cells: this.state.cells });
+
+      // Bit of a non-React hack, but a necessary optimization for larger canvases.
+      document.getElementById(cell.id).style.backgroundColor = cell.color;
+      // this.setState({ cells: this.state.cells, oldCells });
     }
 
     if (this.state.bucket) {
