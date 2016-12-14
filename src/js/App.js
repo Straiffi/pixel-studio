@@ -95,8 +95,8 @@ export default class App extends Component {
         const green = data[i + 1];
         const blue = data[i + 2];
         const alpha = data[i + 3];
-        const hex = alpha !== 0 ? rgbToHex(`rgba(${red}, ${green}, ${blue}, ${alpha})`) : 'transparent';
-        cells.push({ id: (i !== 0 ? (i / 4) : i), color: hex});
+        const rgba = alpha !== 0 ? `rgba(${red}, ${green}, ${blue}, ${alpha / 255})` : 'transparent';
+        cells.push({ id: (i !== 0 ? (i / 4) : i), color: rgba});
       }
       this.setState({ uploadedImage: cells, gridWidth: canvas.width, gridHeight: canvas.height });
     };

@@ -14,3 +14,9 @@ export const rgbToHex = (rgb) => {
     ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
     ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : null;
 };
+
+export const rgbaToArray = (rgba) => {
+  const regExp = /\(([^)]+)\)/;
+  const matches =  regExp.exec(rgba);
+  return matches[1].split(',').map((i) => parseFloat(i, 10));
+};

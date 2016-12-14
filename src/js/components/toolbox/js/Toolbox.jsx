@@ -5,6 +5,15 @@ export default class Toolbox extends Component {
     return (
       <div className="toolbox">
         <div className="row">
+          <div className="three columns">
+            <label htmlFor="opacity">Opacity <span>{this.props.opacity} %</span></label><br/>
+            <input type="range" id="opacity" name="opacity" min="1" max="100" defaultValue="100" onChange={() => {
+              const opacity = document.getElementById('opacity').value;
+              this.props.onOpacityChanged(opacity);
+            }} />
+          </div>
+        </div>
+        <div className="row">
           <div className="twelve columns">
             <input type="color" name="colorpicker" id="colorpicker" style={{ display: 'none' }} onInput={() => {
               const color = document.getElementById('colorpicker').value;
@@ -46,6 +55,7 @@ export default class Toolbox extends Component {
 
 Toolbox.PropTypes = {
   onColorChanged: PropTypes.func,
+  onOpacityChanged: PropTypes.func,
   onToolChanged: PropTypes.func,
   onZoomIn: PropTypes.func,
   onZoomOut: PropTypes.func,

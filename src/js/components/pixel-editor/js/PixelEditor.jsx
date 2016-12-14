@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import PNGImage from 'pnglib';
 import _ from 'lodash';
-import { hexToRgb } from '../../../utils/image-utils';
+import { hexToRgb, rgbaToArray } from '../../../utils/image-utils';
 
 import ImageDownloader from '../../image-downloader/js/ImageDownloader';
 import Toolbox from '../../toolbox/js/Toolbox';
@@ -22,7 +22,8 @@ export default class PixelEditor extends Component {
       history: [],
       future: [],
       paletteColors: [],
-      color: '#000000',
+      color: 'rgba(0, 0, 0, 255)',
+      opacity: 255,
       mousedown: false,
       pen: true,
       eraser: false,
@@ -69,8 +70,9 @@ export default class PixelEditor extends Component {
     for (let i = 0; i < this.state.cells.length; i++) {
       const cell = this.state.cells[i];
       if (cell.color !== 'transparent') {
-        const color = hexToRgb(cell.color);
-        p.buffer[p.index(Math.floor(cell.x), Math.floor(cell.y))] = p.color(color.r, color.g, color.b);
+        const color = cell.color;
+        const rgba = rgbaToArray(color);
+        p.buffer[p.index(Math.floor(cell.x), Math.floor(cell.y))] = p.color(rgba[0], rgba[1], rgba[2], rgba[3] * 255);
       }
     }
     return `data:image/png;base64,${p.getBase64()}`;
@@ -103,7 +105,6 @@ export default class PixelEditor extends Component {
         offsetY++;
       }
     }
-console.log(cells);
     const newState = {
       cells,
       cellSize,
@@ -121,11 +122,6 @@ console.log(cells);
   createGrid() {
     if (this.state.cells.length === 0) { return; }
 
-    let cells = this.state.cells;
-    if (this.state.oldCells.length !== 0) {
-      cells = cells.filter((c, i) => c.color !== this.state.oldCells[i].color);
-      console.log(cells);
-    }
     return this.state.cells.map((c) => {
       return (
         <div key={c.id} id={c.id} className="grid-cell no-select" style={{
@@ -168,7 +164,9 @@ console.log(cells);
 
     const colorPixel = (id) => {
       const pixel = matchPixel(id);
-      pixel.color = this.state.color;
+      const rgba = rgbaToArray(this.state.color);
+      const opacity = (rgba[3] / 255).toFixed(2);
+      pixel.color = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${opacity})`;
     };
 
     while(pixelStack.length !== 0) {
@@ -307,10 +305,12 @@ console.log(cells);
 
   onCellClick(cell) {
     if (this.state.pen || this.state.eraser) {
-      cell.color = this.state.pen ? this.state.color : 'transparent';
-
+      const rgba = rgbaToArray(this.state.color);
+      const opacity = (rgba[3] / 255).toFixed(2);
+      const colorString = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${opacity})`;
+      cell.color = this.state.pen ? colorString : 'transparent';
       // Bit of a non-React hack, but a necessary optimization for larger canvases.
-      document.getElementById(cell.id).style.backgroundColor = cell.color;
+      document.getElementById(cell.id).style.backgroundColor = colorString;
       // this.setState({ cells: this.state.cells, oldCells });
     }
 
@@ -326,7 +326,15 @@ console.log(cells);
   }
 
   onColorChanged(color) {
-    this.setState({ color });
+    const rgba = hexToRgb(color);
+    this.setState({ color: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${this.state.opacity})` });
+  }
+
+  onOpacityChanged(value) {
+    const rgba = rgbaToArray(this.state.color);
+    const actualOpacity = ((value * 255) / 100).toFixed(2);
+    const color = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${actualOpacity})`;
+    this.setState({ opacity: actualOpacity, color });
   }
 
   onToolChanged(tool) {
@@ -396,6 +404,7 @@ console.log(cells);
             <div className="margin-bottom">
               <Toolbox
                 onColorChanged={(color) => this.onColorChanged(color)}
+                onOpacityChanged={(opacity) => this.onOpacityChanged(opacity)}
                 onToolChanged={(tool) => this.onToolChanged(tool)}
                 onZoomIn={() => this.onZoomIn()}
                 onZoomOut={() => this.onZoomOut()}
