@@ -1,13 +1,14 @@
 import React, { Component, PropTypes } from 'react';
+import { rgbToHex } from '../../../utils/image-utils';
 
 export default class Toolbox extends Component {
   render() {
     return (
       <div className="toolbox">
         <div className="row">
-          <div className="three columns">
-            <label htmlFor="opacity">Opacity <span>{this.props.opacity} %</span></label><br/>
-            <input type="range" id="opacity" name="opacity" min="1" max="100" defaultValue="100" onChange={() => {
+          <div className="four columns">
+            <label htmlFor="opacity">Opacity <span>{(this.props.opacity * 100).toFixed(0)} %</span></label><br/>
+            <input type="range" id="opacity" name="opacity" min="1" max="100" value={this.props.opacity * 100} onChange={() => {
               const opacity = document.getElementById('opacity').value;
               this.props.onOpacityChanged(opacity);
             }} />
@@ -20,7 +21,7 @@ export default class Toolbox extends Component {
               this.props.onColorChanged(color);
             }}
             onClick={() => {
-              document.getElementById('colorpicker').value = this.props.activeColor;
+              document.getElementById('colorpicker').value = rgbToHex(this.props.activeColor);
             }}/>
             <label htmlFor="colorpicker" className="no-select color-preview"><span style={{ background: this.props.activeColor, color: '#fff' }} className="toolbox-button" title="Color">Color</span></label>
             <span className={`toolbox-button no-select ${ this.props.pen ? 'selected' : '' } `} onClick={() => this.props.onToolChanged('pen')} title="Pencil"><i className="icon-pencil"></i></span>
@@ -65,6 +66,7 @@ Toolbox.PropTypes = {
   eraser: PropTypes.bool,
   bucket: PropTypes.bool,
   activeColor: PropTypes.string,
+  opacity: PropTypes.number,
 };
 
 Toolbox.defaultProps = {

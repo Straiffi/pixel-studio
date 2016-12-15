@@ -95,7 +95,7 @@ export default class App extends Component {
         const green = data[i + 1];
         const blue = data[i + 2];
         const alpha = data[i + 3];
-        const rgba = alpha !== 0 ? `rgba(${red}, ${green}, ${blue}, ${alpha / 255})` : 'transparent';
+        const rgba = alpha !== 0 ? `rgba(${red}, ${green}, ${blue}, ${alpha / 255})` : 'rgba(0, 0, 0, 0)';
         cells.push({ id: (i !== 0 ? (i / 4) : i), color: rgba});
       }
       this.setState({ uploadedImage: cells, gridWidth: canvas.width, gridHeight: canvas.height });

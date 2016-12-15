@@ -10,6 +10,8 @@ import ColorPalette from '../../color-palette/js/ColorPalette';
 const MAX_ZOOM = 60;
 const MIN_ZOOM = 10;
 
+const TRANSPARENT = 'rgba(0, 0, 0, 0)';
+
 export default class PixelEditor extends Component {
   constructor(props) {
     super(props);
@@ -22,8 +24,8 @@ export default class PixelEditor extends Component {
       history: [],
       future: [],
       paletteColors: [],
-      color: 'rgba(0, 0, 0, 255)',
-      opacity: 255,
+      color: 'rgba(0, 0, 0, 1)',
+      opacity: 1,
       mousedown: false,
       pen: true,
       eraser: false,
@@ -69,7 +71,7 @@ export default class PixelEditor extends Component {
 
     for (let i = 0; i < this.state.cells.length; i++) {
       const cell = this.state.cells[i];
-      if (cell.color !== 'transparent') {
+      if (cell.color !== TRANSPARENT) {
         const color = cell.color;
         const rgba = rgbaToArray(color);
         p.buffer[p.index(Math.floor(cell.x), Math.floor(cell.y))] = p.color(rgba[0], rgba[1], rgba[2], rgba[3] * 255);
@@ -94,7 +96,7 @@ export default class PixelEditor extends Component {
       if (oldCell === undefined) {
         oldCell = _.find(currentCells, (c) => c.id === id);
       }
-      const color = oldCell && oldCell.color && !clear ? oldCell.color : 'transparent';
+      const color = oldCell && oldCell.color && !clear ? oldCell.color : TRANSPARENT;
       cells.push({ id, x: offsetX, y: offsetY, top, left, color, size: cellSize });
       left += cellSize + 1;
       offsetX++;
@@ -142,7 +144,7 @@ export default class PixelEditor extends Component {
     const colors = [];
     const currentCells = cells ? cells : this.state.cells;
     currentCells.forEach((c) => {
-      if (c.color !== 'transparent' && !colors.includes(c.color)) {
+      if (c.color !== TRANSPARENT && !colors.includes(c.color)) {
         colors.push(c.color);
       }
     });
@@ -165,8 +167,7 @@ export default class PixelEditor extends Component {
     const colorPixel = (id) => {
       const pixel = matchPixel(id);
       const rgba = rgbaToArray(this.state.color);
-      const opacity = (rgba[3] / 255).toFixed(2);
-      pixel.color = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${opacity})`;
+      pixel.color = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3]})`;
     };
 
     while(pixelStack.length !== 0) {
@@ -304,14 +305,18 @@ export default class PixelEditor extends Component {
   }
 
   onCellClick(cell) {
-    if (this.state.pen || this.state.eraser) {
+    if (this.state.pen) {
       const rgba = rgbaToArray(this.state.color);
-      const opacity = (rgba[3] / 255).toFixed(2);
-      const colorString = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${opacity})`;
-      cell.color = this.state.pen ? colorString : 'transparent';
+      const colorString = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3]})`;
+      cell.color = colorString ;
+
       // Bit of a non-React hack, but a necessary optimization for larger canvases.
       document.getElementById(cell.id).style.backgroundColor = colorString;
-      // this.setState({ cells: this.state.cells, oldCells });
+    }
+
+    if (this.state.eraser) {
+      cell.color = TRANSPARENT;
+      document.getElementById(cell.id).style.backgroundColor = TRANSPARENT;
     }
 
     if (this.state.bucket) {
@@ -319,22 +324,32 @@ export default class PixelEditor extends Component {
     }
 
     if (this.state.eyedropper) {
-      if (cell.color !== 'transparent') {
+      if (cell.color !== TRANSPARENT) {
         this.onColorChanged(cell.color);
       }
     }
   }
 
   onColorChanged(color) {
-    const rgba = hexToRgb(color);
-    this.setState({ color: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${this.state.opacity})` });
+    let colorString = TRANSPARENT;
+    let opacity = this.state.opacity;
+    if (color.includes('#')) { // Color originated from color picker.
+      let rgba = hexToRgb(color);
+      rgba.a = this.state.opacity;
+      colorString = `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${opacity})`;
+    } else { // RGBA color was picked from palette or eyedropper.
+      let rgba = rgbaToArray(color);
+      opacity = rgba[3];
+      colorString = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${opacity})`;
+    }
+    this.setState({ color: colorString, opacity });
   }
 
   onOpacityChanged(value) {
     const rgba = rgbaToArray(this.state.color);
-    const actualOpacity = ((value * 255) / 100).toFixed(2);
-    const color = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${actualOpacity})`;
-    this.setState({ opacity: actualOpacity, color });
+    const opacity = (value / 100).toFixed(2);
+    const color = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${opacity})`;
+    this.setState({ opacity, color });
   }
 
   onToolChanged(tool) {
@@ -415,6 +430,7 @@ export default class PixelEditor extends Component {
                 bucket={this.state.bucket}
                 eyedropper={this.state.eyedropper}
                 activeColor={this.state.color}
+                opacity={this.state.opacity}
               />
             </div>
           </div>
